@@ -12,7 +12,7 @@ import PasswordInput from "../components/elements/PasswordInput";
 import ToastModal from "../components/elements/ToastModal";
 
 import { loginState, logoutToastState, routeState } from "../state/atom";
-import { getCookie, setCookie } from "../utils/cookie";
+import { getCookie, removeCookie, setCookie } from "../utils/cookie";
 import { getLoc } from "../utils/localStorage";
 import { postLogin } from "../api/memberApi";
 import { InputStatusType } from "../types/etcTypes";
@@ -60,6 +60,9 @@ const LoginPage = () => {
       setRoute(true);
       setIsLogin(true);
       navigate(`/home/${getLoc("memberId")}`);
+      if (getCookie("visit")) {
+        removeCookie("visit");
+      }
     },
     onError(error: AxiosError | any) {
       const errerStatus = error.response.status;
@@ -121,7 +124,7 @@ const LoginPage = () => {
           maxLengthView={false}
           maxLength={20}
           placeholder="아이디를 입력해주세요"
-          inputType="memberName"
+          inputId="member-name"
           onKeyDown={handleKeyDown}
         ></Input>
         <StInputContainer>

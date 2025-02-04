@@ -9,6 +9,7 @@ import NewDiskCard from "../newDisk/NewDiskCard";
 import Input from "../elements/Input";
 import Textarea from "../elements/Textarea";
 import Button from "../elements/Button";
+import { patchDisk } from "../../api/diskApi";
 import {
   DISK_CONTENT_MAX_LENGTH,
   DISK_NAME_MAX_LENGTH,
@@ -18,8 +19,14 @@ import {
   getRandomName,
 } from "../../utils/getRandomName";
 import { getLoc } from "../../utils/localStorage";
-import { patchDisk } from "../../api/diskApi";
-import { DISK_COLOR_LIST, DiskImgType, DiskType } from "../../types/diskTypes";
+import { logClickEvent } from "../../utils/googleAnalytics";
+import {
+  DISK_COLOR_LIST,
+  DiskImgType,
+  DiskMainImgType,
+  DiskPreviewType,
+  DiskType,
+} from "../../types/diskTypes";
 import { InputStatusType } from "../../types/etcTypes";
 import { MOBILE_MAX_W, calcRem, fontTheme } from "../../styles/theme";
 
@@ -44,8 +51,11 @@ const EditDisk = ({ data }: EditDiskProps) => {
   const [files, setFiles] = useState<File[]>([]);
   const [defaultImgList, setDefaultImgList] = useState<DiskImgType[]>([]);
   const [deleteImgList, setDeleteImgList] = useState<number[]>([]);
-  const [previewList, setPreviewList] = useState<DiskImgType[]>([]);
-  const [mainImg, setMainImg] = useState<string>("");
+  const [previewList, setPreviewList] = useState<DiskPreviewType[]>([]);
+  const [mainImg, setMainImg] = useState<DiskMainImgType>({
+    imgUrl: "",
+    index: 0,
+  });
   const [content, setContent] = useState("");
   const [contentStatus, setContentStatus] =
     useState<InputStatusType>("default");
@@ -57,9 +67,9 @@ const EditDisk = ({ data }: EditDiskProps) => {
     setDiskName(data.diskName);
     setDiskNum(DISK_COLOR_LIST.indexOf(data.diskColor));
     setContent(data.content);
-    setMainImg(data.image[0].imgUrl);
+    setMainImg({ imgUrl: data.image[0].imgUrl, index: 0 });
     setDefaultImgList(data.image);
-    setPreviewList(data.image);
+    setPreviewList(data.image.map((val, i) => ({ ...val, index: i })));
   }, []);
 
   useEffect(() => {
@@ -95,6 +105,11 @@ const EditDisk = ({ data }: EditDiskProps) => {
 
   const { mutate: editDisk, isLoading: editLoading } = useMutation(patchDisk, {
     onSuccess: () => {
+      logClickEvent({
+        action: "SUBMIT_EDIT_DISK",
+        category: "edit-disk",
+        label: "Submit Edit Disk",
+      });
       queryClient.invalidateQueries(["diskList"]);
       queryClient.invalidateQueries(["diskById"]);
       navigate(`/disk-list/${getLoc("memberId")}`);
@@ -153,6 +168,7 @@ const EditDisk = ({ data }: EditDiskProps) => {
                     <Dice />
                   </StRandomBtn>
                 }
+                inputId="disk-name"
               ></Input>
             </StInputContainer>
           </StDiskCover>
@@ -191,7 +207,7 @@ const EditDisk = ({ data }: EditDiskProps) => {
               btnStatus={
                 !editLoading && valid && updated ? "primary01" : "disabled"
               }
-              clickHandler={() => handleSubmit()}
+              clickHandler={handleSubmit}
               disabled={!editLoading && valid && updated ? false : true}
             >
               <span>디스크 굽기</span>

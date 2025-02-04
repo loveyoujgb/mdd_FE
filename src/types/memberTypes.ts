@@ -14,20 +14,6 @@ export type MemberType = {
   visitCount: number;
 };
 
-export type UserInfoData = {
-  createdAt: string;
-  interest: string;
-  introduce: string;
-  isMe: boolean;
-  likeCount: number;
-  memberId: number;
-  memberName: string;
-  modifiedAt: string;
-  nickname: string;
-  profileImg: string;
-  visitCount: number;
-};
-
 export type UserBookbarkDataType = {
   diskList: Array<DiskType>;
   isMine: boolean;

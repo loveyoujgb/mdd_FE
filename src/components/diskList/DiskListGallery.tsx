@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
 
+import { DiskListProps } from "../../pages/DiskListPage";
+import ModalLayout from "../layout/ModalLayout";
 import DiskCard from "./DiskCard";
 import Disk from "../elements/Disk";
 import Button from "../elements/Button";
-import ModalLayout from "../layout/ModalLayout";
 import { newDiskStepState } from "../../state/atom";
+import { logClickEvent } from "../../utils/googleAnalytics";
 import { DiskColorType, DiskType } from "../../types/diskTypes";
-import { DiskListProps } from "../../pages/DiskListPage";
 import { MOBILE_MAX_W, WINDOW_W, calcRem, fontTheme } from "../../styles/theme";
 import { lightTheme } from "../../styles/colors";
 
@@ -26,9 +27,33 @@ const DiskListGallery = ({ isMine, data }: DiskListProps) => {
 
   const navigate = useNavigate();
 
+  const handleDiskCard = (target: number) => {
+    logClickEvent({
+      action: "DISK_CARD_VIEW",
+      category: "disk-list",
+      label: "View Disk Card",
+    });
+    setOpenModal(true);
+    setTargetDisk(target);
+  };
+
   const handleNewDisk = () => {
+    logClickEvent({
+      action: "NEW_DISK",
+      category: "disk-list",
+      label: "Click New Disk Button",
+    });
     setStep("newDisk1");
     navigate("/new-disk", { state: "newDisk" });
+  };
+
+  const handleEditDisk = () => {
+    logClickEvent({
+      action: "EDIT_DISK",
+      category: "disk-list",
+      label: "Click Edit Disk Button",
+    });
+    navigate(`/edit-disk/${targetDisk}`);
   };
 
   return (
@@ -53,10 +78,7 @@ const DiskListGallery = ({ isMine, data }: DiskListProps) => {
           return (
             <StItem
               key={`${diskName}-${diskId}`}
-              onClick={() => {
-                setOpenModal(true);
-                setTargetDisk(diskId);
-              }}
+              onClick={() => handleDiskCard(diskId)}
             >
               <StDiskContainer>
                 <Disk diskColor={diskColor as DiskColorType} />
@@ -97,10 +119,7 @@ const DiskListGallery = ({ isMine, data }: DiskListProps) => {
             </Button>
             {(data.find((val) => val.diskId === targetDisk) as DiskType)
               .isMine ? (
-              <Button
-                btnStatus="primary01"
-                clickHandler={() => navigate(`/edit-disk/${targetDisk}`)}
-              >
+              <Button btnStatus="primary01" clickHandler={handleEditDisk}>
                 <StBtnText>
                   <Pen fill={lightTheme.colors.white} />
                   <span>편집하기</span>

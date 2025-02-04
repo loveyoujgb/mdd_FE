@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
+import Resizer from "react-image-file-resizer";
 
 import ModalLayout from "../layout/ModalLayout";
 import Input from "../elements/Input";
@@ -14,6 +15,7 @@ import {
   NICKNAME_MAX_LENGTH,
 } from "../../utils/validations";
 import { setLoc } from "../../utils/localStorage";
+import { logClickEvent } from "../../utils/googleAnalytics";
 import { MemberType } from "../../types/memberTypes";
 import { InputStatusType } from "../../types/etcTypes";
 import { MOBILE_MAX_W, WINDOW_W, calcRem, fontTheme } from "../../styles/theme";
@@ -98,11 +100,30 @@ const ProfileModal = ({ data, setOpen }: ProfileModalProps) => {
 
   const { mutate: updateMyInfo } = useMutation(patchMyInfo, {
     onSuccess: () => {
+      logClickEvent({
+        action: "SUBMIT_EDIT_PROFILE",
+        category: "home",
+        label: "Submit Edit Profile",
+      });
       queryClient.invalidateQueries(["userInfo"]);
       setLoc("nickname", nickname);
       setOpen(false);
     },
   });
+
+  const resizeFile = (file: File) =>
+    new Promise((res) => {
+      Resizer.imageFileResizer(
+        file,
+        400,
+        400,
+        "JPEG",
+        80,
+        0,
+        (uri) => res(uri),
+        "file"
+      );
+    });
 
   const handleAddImg = async (e: ChangeEvent<HTMLInputElement>) => {
     const target = e.target.files;
@@ -115,9 +136,10 @@ const ProfileModal = ({ data, setOpen }: ProfileModalProps) => {
           )}MB 이하의 사진만 등록할 수 있습니다.`
         );
       } else {
-        setFile(newFiles);
+        const compressedFile = (await resizeFile(newFiles[0])) as File;
+        setFile([compressedFile]);
         const reader = new FileReader();
-        reader.readAsDataURL(newFiles[0]);
+        reader.readAsDataURL(compressedFile);
         reader.onload = () => {
           const previewUrl = reader.result as string;
           setPreview(previewUrl);
@@ -193,7 +215,7 @@ const ProfileModal = ({ data, setOpen }: ProfileModalProps) => {
           placeholder=""
           jc="flex-start"
           TopChildren={<StOptionText>필수사항</StOptionText>}
-          inputType="nickname"
+          inputId="nickname"
         />
         <Input
           labelText="요즘 열심히 파고있는 관심사는? 🤔"
@@ -205,6 +227,7 @@ const ProfileModal = ({ data, setOpen }: ProfileModalProps) => {
           placeholder="무엇에 몰입하고 있나요?"
           jc="flex-start"
           TopChildren={<StOptionText>선택사항</StOptionText>}
+          inputId="interest"
         />
         <Textarea
           labelText="나를 한 줄로 표현해봐요 💬"
@@ -262,6 +285,7 @@ const StContainer = styled.div`
   border-radius: ${calcRem(12)};
 
   h2 {
+    color: ${({ theme }) => theme.colors.text01};
     line-height: ${fontTheme.display01.lineHeight};
     letter-spacing: ${fontTheme.display01.letterSpacing};
     font-size: ${fontTheme.display01.fontSize};

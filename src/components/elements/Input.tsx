@@ -20,7 +20,7 @@ interface InputProps extends React.HTMLAttributes<HTMLDivElement> {
   placeholder: string;
   jc?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around";
   TopChildren?: React.ReactNode;
-  inputType?: string;
+  inputId: string;
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
@@ -37,19 +37,19 @@ const Input = ({
   placeholder,
   jc = "space-between",
   TopChildren,
-  inputType = "",
+  inputId = "",
   onKeyDown = () => {},
 }: InputProps) => {
   const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
   const setDebounce = useSetRecoilState(debounceState);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (inputType === "memberName") {
+    if (inputId === "member-name") {
       setDebounce("default");
     }
 
     const inputValue = e.target.value;
-    if (inputType === "memberName" || inputType === "nickname") {
+    if (inputId === "member-name" || inputId === "nickname") {
       setValue(inputValue.replace(/\s+/g, "").substring(0, maxLength));
     } else {
       setValue(inputValue.substring(0, maxLength));
@@ -60,7 +60,7 @@ const Input = ({
     }
 
     const newTimerId = setTimeout(() => {
-      if (value.length > 0 && inputType === "memberName") {
+      if (value.length > 0 && inputId === "member-name") {
         setDebounce("check");
       }
     }, 300);
@@ -70,11 +70,13 @@ const Input = ({
   return (
     <StContainer inputStatus={status}>
       <StFlex jc={jc}>
-        <label htmlFor="input-element">{labelText}</label>
+        <label htmlFor={inputId}>{labelText}</label>
         {TopChildren}
       </StFlex>
-      <StInputContainer id="input-element" inputStatus={status}>
+      <StInputContainer inputStatus={status}>
         <StInput
+          id={inputId}
+          autoComplete="off"
           placeholder={placeholder}
           type={type}
           value={value}

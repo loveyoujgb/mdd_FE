@@ -6,12 +6,14 @@ import { AxiosError } from "axios";
 import styled, { css, keyframes } from "styled-components";
 
 import IconConverter from "./IconConverter";
+import ImageLoader from "../elements/ImageLoader";
 import { bookmarkDisk, deleteDisk, likeDisk } from "../../api/diskApi";
 import {
   bookmarkToastState,
   deleteToastState,
   pageState,
 } from "../../state/atom";
+import { logClickEvent } from "../../utils/googleAnalytics";
 import {
   DISK_BTN_LIST,
   DiskBtnType,
@@ -47,6 +49,7 @@ const DiskCard = ({ data, setOpen }: DiskCardProps) => {
     likeCount,
     modifiedAt,
   } = data;
+  const [loading, setLoading] = useState(false);
   const [mainImg, setMainImg] = useState<string>("");
   const [mode, setMode] = useState<DiskModeType>("gallery");
   const [showBookmark, setShowBookmark] = useState(false);
@@ -137,21 +140,37 @@ const DiskCard = ({ data, setOpen }: DiskCardProps) => {
   const handleMainImg = (target: number) => setMainImg(image[target].imgUrl);
 
   const clickHandler = (name: DiskBtnType) => {
+    const pathname = window.location.pathname.split("/")[1];
     switch (name) {
       case "like":
         handleLike(diskId);
         return;
       case "edit":
+        logClickEvent({
+          action: "EDIT_DISK",
+          category: pathname,
+          label: "Click Edit Disk Button",
+        });
         navigate(`/edit-disk/${diskId}`);
         return;
       case "delete":
         if (window.confirm("디스크를 삭제하실 건가요?")) handleDelete(diskId);
         return;
       case "bookmark":
+        logClickEvent({
+          action: "BOOKMARK",
+          category: pathname,
+          label: showBookmark ? "UnBookmark" : "Bookmark",
+        });
         handleBookmark(diskId);
         return;
       case "mode":
-        setMode("text");
+        logClickEvent({
+          action: "DISK_MODE",
+          category: pathname,
+          label: mode === "gallery" ? "View Disk Text" : "View Disk Image",
+        });
+        mode === "text" ? setMode("gallery") : setMode("text");
         return;
       default:
         return;
@@ -162,15 +181,16 @@ const DiskCard = ({ data, setOpen }: DiskCardProps) => {
     <Stcontainer diskColor={diskColor}>
       <StDiskName diskColor={diskColor}>{diskName}</StDiskName>
       <StPreviewContainer>
-        <StMainImg src={mainImg} alt="main-preview" />
+        <ImageLoader src={mainImg} />
       </StPreviewContainer>
       <StImgList>
         {image.map((val, idx) => {
+          const { imgId, imgUrl } = val;
           return (
-            <li key={`preview-${val.imgId}`}>
+            <li key={`preview-${imgId}`}>
               <StPreview visibile={true} onClick={() => handleMainImg(idx)}>
-                {val.imgUrl === mainImg ? <StDim /> : <></>}
-                <img src={val.imgUrl} alt={`preview-${val.imgId}`} />
+                {imgUrl === mainImg ? <StDim /> : <></>}
+                <ImageLoader src={imgUrl} />
               </StPreview>
             </li>
           );
@@ -252,7 +272,7 @@ const DiskCard = ({ data, setOpen }: DiskCardProps) => {
           </Stcontent>
           <StIconContainer
             diskColor={diskColor}
-            onClick={() => setMode("gallery")}
+            onClick={() => clickHandler("mode")}
             isTextMode={true}
           >
             <Gallery

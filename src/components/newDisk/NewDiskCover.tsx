@@ -15,10 +15,7 @@ import { InputStatusType } from "../../types/etcTypes";
 
 import { ReactComponent as Dice } from "../../assets/svg/dice.svg";
 import DiskCarousel from "./DiskCarousel";
-import {
-  RANDOM_DISK_NAME_LIST,
-  getRandomName,
-} from "../../utils/getRandomName";
+import { getRandomName } from "../../utils/getRandomName";
 import { getLoc } from "../../utils/localStorage";
 
 const NewDiskCover = ({ titleText }: NewDiskProps) => {
@@ -33,7 +30,7 @@ const NewDiskCover = ({ titleText }: NewDiskProps) => {
 
   useEffect(() => {
     setDiskNum(DISK_COLOR_LIST.indexOf(newDisk.diskColor));
-    setDiskName(newDisk.diskName ? newDisk.diskName : RANDOM_DISK_NAME_LIST[0]);
+    setDiskName(newDisk.diskName ? newDisk.diskName : "");
   }, []);
 
   const handleNext = () => {
@@ -61,7 +58,7 @@ const NewDiskCover = ({ titleText }: NewDiskProps) => {
           setValue={setDiskName}
           status={inputStatus}
           setStatus={setInputStatus}
-          placeholder=""
+          placeholder="상반기 최애 아이돌 Top4 ⸜( ˙ ˘ ˙)⸝♡"
           maxLength={DISK_NAME_MAX_LENGTH}
           TopChildren={
             <StRandomBtn onClick={() => setDiskName(getRandomName())}>
@@ -69,6 +66,7 @@ const NewDiskCover = ({ titleText }: NewDiskProps) => {
               <Dice />
             </StRandomBtn>
           }
+          inputId="disk-name"
         ></Input>
       </StInputContainer>
       <StBtnContainer>

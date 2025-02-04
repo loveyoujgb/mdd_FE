@@ -10,6 +10,7 @@ import { MOBILE_MAX_W, WINDOW_W, calcRem } from "../../styles/theme";
 import { lightTheme } from "../../styles/colors";
 
 import { DiskType } from "../../types/diskTypes";
+import { logClickEvent } from "../../utils/googleAnalytics";
 
 import { ReactComponent as CloseCircle } from "../../assets/svg/close_circle.svg";
 import { ReactComponent as Pen } from "../../assets/svg/pen.svg";
@@ -55,7 +56,15 @@ const HomeDisk = ({
         ).isMine ? (
           <Button
             btnStatus="primary01"
-            clickHandler={() => navigate(`/edit-disk/${targetDisk}`)}
+            clickHandler={() => {
+              navigate(`/edit-disk/${targetDisk}`);
+              // 디스크 수정하기
+              logClickEvent({
+                action: "EDIT_DISK",
+                category: "home",
+                label: "Click Edit Disk Button",
+              });
+            }}
           >
             <StBtnText>
               <Pen fill={lightTheme.colors.white} />

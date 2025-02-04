@@ -5,7 +5,7 @@ import { useRecoilValue } from "recoil";
 import { darkTheme, lightTheme } from "../../styles/colors";
 import { calcRem, fontTheme } from "../../styles/theme";
 
-import { UserInfoData } from "../../types/memberTypes";
+import { MemberType } from "../../types/memberTypes";
 import { numberFormat } from "../../utils/numberFormat";
 import { lightThemeState } from "../../state/atom";
 
@@ -14,7 +14,7 @@ import { ReactComponent as Like } from "../../assets/svg/like.svg";
 import { ReactComponent as Edit } from "../../assets/svg/edit.svg";
 
 interface HomeUserInfoProps {
-  data: UserInfoData;
+  data: MemberType;
   setOpenProfileModal: Dispatch<SetStateAction<boolean>>;
   like: number;
 }

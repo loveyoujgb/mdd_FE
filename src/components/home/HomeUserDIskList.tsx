@@ -9,6 +9,7 @@ import { darkTheme, lightTheme } from "../../styles/colors";
 import { DiskType } from "../../types/diskTypes";
 import { UserBookbarkDataType } from "../../types/memberTypes";
 import { lightThemeState } from "../../state/atom";
+import { logClickEvent } from "../../utils/googleAnalytics";
 
 import { ReactComponent as Plus } from "../../assets/svg/plus.svg";
 import { ReactComponent as Bookmark } from "../../assets/svg/bookmark.svg";
@@ -42,7 +43,15 @@ const HomeUserDIskList = ({
         </StDiskText>
         {bookmarkData.isMine ? (
           <Plus
-            onClick={() => navigate("/new-disk", { state: "newDisk" })}
+            onClick={() => {
+              // 디스크 생성하기
+              logClickEvent({
+                action: "NEW_DISK",
+                category: "home",
+                label: "Click New Disk Button",
+              });
+              navigate("/new-disk", { state: "newDisk" });
+            }}
             width="24px"
             height="24px"
           />
@@ -62,6 +71,12 @@ const HomeUserDIskList = ({
               onClick={() => {
                 setOpenDiskModal(true);
                 setTargetDisk(item.diskId);
+                // 디스크 상세보기
+                logClickEvent({
+                  action: "DISK_CARD_VIEW",
+                  category: "home",
+                  label: "View Disk Card",
+                });
               }}
               key={item.diskId}
             >

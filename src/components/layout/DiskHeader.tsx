@@ -3,19 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
 import styled from "styled-components";
 
-import { getLoc } from "../../utils/localStorage";
 import {
   lightThemeState,
   newDiskState,
   newDiskStepState,
   pageState,
 } from "../../state/atom";
+import { getLoc } from "../../utils/localStorage";
+import { logClickEvent } from "../../utils/googleAnalytics";
 import { MOBILE_MAX_W, calcRem, fontTheme } from "../../styles/theme";
 import { darkTheme, lightTheme } from "../../styles/colors";
 
 import { ReactComponent as Arrow } from "../../assets/svg/arrow.svg";
 import { ReactComponent as PlusFilled } from "../../assets/svg/plus_filled.svg";
-import { ReactComponent as ListCategoqy } from "../../assets/svg/list_category.svg";
+import { ReactComponent as ListCategory } from "../../assets/svg/list_category.svg";
 import { ReactComponent as ListVertical } from "../../assets/svg/list_vertical.svg";
 
 interface DiskHeaderProps {
@@ -92,6 +93,26 @@ const DiskHeader = ({
     }
   };
 
+  const handleListMode = () => {
+    logClickEvent({
+      action: "DISK_LIST_MODE",
+      category: "disk-list",
+      label: page === "diskListFeed" ? "View Gallery List" : "View Feed List",
+    });
+    setPage((prev) =>
+      prev === "diskListFeed" ? "diskListGallery" : "diskListFeed"
+    );
+  };
+
+  const handleNewDisk = () => {
+    logClickEvent({
+      action: "NEW_DISK",
+      category: "disk-list",
+      label: "Click New Disk Button",
+    });
+    navigate("/new-disk", { state: "newDisk" });
+  };
+
   return (
     <StHeader jc={jc}>
       <StTitle>
@@ -102,21 +123,15 @@ const DiskHeader = ({
       </StTitle>
       {page === "diskListFeed" || page === "diskListGallery" ? (
         <StBtnContainer>
-          <button
-            onClick={() =>
-              setPage((prev) =>
-                prev === "diskListFeed" ? "diskListGallery" : "diskListFeed"
-              )
-            }
-          >
+          <button name="changeListMode" onClick={handleListMode}>
             {page === "diskListGallery" ? (
               <ListVertical fill={lightTheme.colors.primary01} />
             ) : (
-              <ListCategoqy fill={lightTheme.colors.primary01} />
+              <ListCategory fill={lightTheme.colors.primary01} />
             )}
           </button>
           {isMyDisk ? (
-            <button onClick={() => navigate("/new-disk", { state: "newDisk" })}>
+            <button name="goSettings" onClick={handleNewDisk}>
               <PlusFilled fill={lightTheme.colors.primary01} />
             </button>
           ) : (

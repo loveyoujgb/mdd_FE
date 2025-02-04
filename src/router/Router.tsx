@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
+import LandingPage from "../pages/LandingPage";
 import HomePage from "../pages/HomePage";
-import MainPage from "../pages/MainPage";
 import SignUpPage from "../pages/SignUpPage";
 import LoginPage from "../pages/LoginPage";
 import DiskListPage from "../pages/DiskListPage";
@@ -52,11 +52,11 @@ const Router = () => {
               isLogin || isSignUp ? (
                 <Navigate to={`/home/${memberId}`} />
               ) : (
-                <HomePage />
+                <LandingPage />
               )
             }
           />
-          <Route path="/home/:id" element={<MainPage />} />
+          <Route path="/home/:id" element={<HomePage />} />
           <Route
             path="/signUp"
             element={

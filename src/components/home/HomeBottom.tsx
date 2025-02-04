@@ -13,7 +13,7 @@ import { getLoc } from "../../utils/localStorage";
 
 import { postUserLike } from "../../api/memberApi";
 import { lightThemeState } from "../../state/atom";
-import { UserInfoData } from "../../types/memberTypes";
+import { MemberType } from "../../types/memberTypes";
 
 import { ReactComponent as Like } from "../../assets/svg/like.svg";
 import { ReactComponent as Share } from "../../assets/svg/share.svg";
@@ -23,7 +23,7 @@ import { ReactComponent as GuideIcon } from "../../assets/svg/guide.svg";
 import Button from "../elements/Button";
 
 interface HomeBottomProps {
-  data: UserInfoData;
+  data: MemberType;
   setOpenGuidemodal: Dispatch<SetStateAction<boolean>>;
   like: number;
   setLike: Dispatch<SetStateAction<number>>;
@@ -36,12 +36,19 @@ const HomeBottom = ({
   setLike,
 }: HomeBottomProps) => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [likeView, setLikeView] = useState<JSX.Element[]>([]);
   const memberId = getLoc("memberId");
   const isLightTheme = useRecoilValue(lightThemeState);
 
   const handleShare = () => {
+    // 공유하기 클릭
+    logClickEvent({
+      action: "SHARE_BUTTON",
+      category: "home",
+      label: "Click Share Button",
+    });
+
     const nickname = getLoc("nickname");
     if (navigator.share) {
       navigator
@@ -61,16 +68,10 @@ const HomeBottom = ({
         })
         .catch(() => {});
     }
-
-    logClickEvent({
-      action: "CLICK TEST",
-      category: "share",
-      label: "share my home",
-    });
   };
 
   const { mutate: mutationUserLike } = useMutation(
-    () => postUserLike(id ? id : ""),
+    () => postUserLike(id as string),
     {
       onSuccess(res) {
         setLike(res);
@@ -113,10 +114,11 @@ const HomeBottom = ({
           <div
             onClick={() => {
               setOpenGuidemodal(true);
+              // 홈 - 디깅디스크 사용법
               logClickEvent({
-                action: "GUIDE CLICK",
-                category: "guide modal",
-                label: "open guide modal",
+                action: "GUIDE_MODAL",
+                category: "home",
+                label: "Open Guide Modal",
               });
             }}
           >

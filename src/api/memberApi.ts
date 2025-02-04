@@ -113,3 +113,12 @@ export const deleteUser = async () => {
     throw err;
   }
 };
+
+export const postVisitCount = async (memberId: string) => {
+  try {
+    const res = await tokenInstance.post(`/api/v1/members/view/${memberId}`);
+    return res.data;
+  } catch (err) {
+    throw err;
+  }
+};

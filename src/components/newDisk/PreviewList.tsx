@@ -2,21 +2,21 @@ import { ChangeEvent } from "react";
 import styled from "styled-components";
 
 import { DISK_IMG_MAX_LENGTH } from "../../utils/validations";
-import { DiskImgType } from "../../types/diskTypes";
+import { DiskMainImgType, DiskPreviewType } from "../../types/diskTypes";
 import { calcRem } from "../../styles/theme";
 
 import { ReactComponent as GalleryAdd } from "../../assets/svg/gallery_add.svg";
 import { ReactComponent as CloseCircle } from "../../assets/svg/close_circle.svg";
 
 const PreviewList = (
-  list: DiskImgType[],
+  list: DiskPreviewType[],
   handleAddImg: (e: ChangeEvent<HTMLInputElement>) => Promise<void>,
   handleDeleteImg: (
     e: React.MouseEvent,
     target: number,
     targetUrl: string
   ) => void,
-  mainImg: string,
+  mainImg: DiskMainImgType,
   handleMainImg: (target: number) => void
 ) => {
   const arr = [];
@@ -25,7 +25,8 @@ const PreviewList = (
       <li key={`${i}-${list[i]}`}>
         {list[i] ? (
           <StPreview onClick={() => handleMainImg(i)}>
-            {list[i].imgUrl === mainImg ? (
+            {list[i].imgUrl === mainImg.imgUrl &&
+            list[i].index === mainImg.index ? (
               <StDim>
                 <button onClick={(e) => handleDeleteImg(e, i, list[i].imgUrl)}>
                   <CloseCircle />

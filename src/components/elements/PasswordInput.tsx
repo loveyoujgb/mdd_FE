@@ -45,11 +45,13 @@ const PasswordInput = ({
   return (
     <StContainer inputStatus={status}>
       <StFlex jc={jc}>
-        <label htmlFor="input-element">{labelText}</label>
+        <label htmlFor="password">{labelText}</label>
         {TopChildren}
       </StFlex>
-      <StInputContainer id="input-element" inputStatus={status}>
+      <StInputContainer inputStatus={status}>
         <StInput
+          id="password"
+          autoComplete="off"
           isMasked={isMasked}
           placeholder={placeholder}
           type="text"
